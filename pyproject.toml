@@ -1,0 +1,58 @@
+[project]
+name = "triposr"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "einops==0.7.0",
+    "fastapi<0.110",
+    "gradio>=4.8.0",
+    "huggingface-hub>=0.17.3",
+    "imageio[ffmpeg]>=2.38.1",
+    "moderngl==5.10.0",
+    "omegaconf==2.3.0",
+    "pillow==10.1.0",
+    "rembg>=2.0.69",
+    "transformers==4.35.0",
+    "trimesh==4.0.5",
+    "xatlas>=0.0.9",
+]
+
+# Exactly one of these must be selected: `uv sync --extra cpu` or `uv sync --extra cuda`.
+[project.optional-dependencies]
+cpu = ["torch", "torchmcubes", "rembg[cpu]"]   # macOS (MPS/CPU) and Linux without NVIDIA GPU
+cuda = ["torch; sys_platform == 'linux'", "torchmcubes; sys_platform == 'linux'", "rembg[gpu]; sys_platform == 'linux'"]  # Linux with NVIDIA GPU (needs CUDA toolkit/nvcc to build torchmcubes)
+
+[tool.uv]
+environments = [
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "sys_platform == 'linux'",
+]
+conflicts = [[{ extra = "cpu" }, { extra = "cuda" }]]
+
+# torchmcubes compiles against torch at install time
+[tool.uv.extra-build-dependencies]
+torchmcubes = [{ requirement = "torch", match-runtime = true }, "setuptools"]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu124", extra = "cuda" },
+]
+torchmcubes = { git = "https://github.com/tatsy/torchmcubes.git" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+# torchmcubes computes its `torch==<build-time version>` pin dynamically, which can't work across
+# cpu/cuda torch builds. torch is declared by our own extras instead.
+[[tool.uv.dependency-metadata]]
+name = "torchmcubes"
+version = "0.1.0"
+requires-dist = []
