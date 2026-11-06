@@ -2256,7 +2256,7 @@ wheels = [
 [[package]]
 name = "triposr"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "einops" },
     { name = "fastapi" },
@@ -2269,6 +2269,7 @@ dependencies = [
     { name = "rembg" },
     { name = "transformers" },
     { name = "trimesh" },
+    { name = "typer" },
     { name = "xatlas" },
 ]
 
@@ -2304,6 +2305,7 @@ requires-dist = [
     { name = "torchmcubes", marker = "extra == 'cpu'", git = "https://github.com/tatsy/torchmcubes.git" },
     { name = "transformers", specifier = "==4.35.0" },
     { name = "trimesh", specifier = "==4.0.5" },
+    { name = "typer", specifier = ">=0.12" },
     { name = "xatlas", specifier = ">=0.0.9" },
 ]
 provides-extras = ["cpu", "cuda"]

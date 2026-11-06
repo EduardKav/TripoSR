@@ -42,10 +42,16 @@ class MarchingCubeHelper(IsosurfaceHelper):
         level: torch.FloatTensor,
     ) -> Tuple[torch.FloatTensor, torch.LongTensor]:
         level = -level.view(self.resolution, self.resolution, self.resolution)
+        # torchmcubes only has CUDA and CPU kernels, so e.g. MPS tensors go via CPU
+        vol = level.detach()
+        if vol.device.type not in ("cuda", "cpu"):
+            vol = vol.cpu()
         try:
-            v_pos, t_pos_idx = self.mc_func(level.detach(), 0.0)
+            v_pos, t_pos_idx = self.mc_func(vol, 0.0)
         except AttributeError:
-            print("torchmcubes was not compiled with CUDA support, use CPU version instead.")
+            print(
+                "torchmcubes was not compiled with CUDA support, use CPU version instead."
+            )
             v_pos, t_pos_idx = self.mc_func(level.detach().cpu(), 0.0)
         v_pos = v_pos[..., [2, 1, 0]]
         v_pos = v_pos / (self.resolution - 1.0)

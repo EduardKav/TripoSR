@@ -39,19 +39,19 @@ Notes:
 - Always pass one of the extras; a plain `uv sync` installs no PyTorch.
 - **CUDA:** building `torchmcubes` with GPU support requires the CUDA toolkit (`nvcc`, CUDA 12.x to match the PyTorch build) to be installed locally. Without it, `torchmcubes` is built CPU-only (see Troubleshooting).
 - Supported platforms are macOS arm64 and Linux. Windows and Intel Macs are not covered by the lockfile.
-- Run any command inside the environment with `uv run`, e.g. `uv run python run.py ...`.
+- Run any command inside the environment with `uv run`, e.g. `uv run triposr ...`.
 
 ### Manual Inference
 
 ```sh
-uv run python run.py examples/chair.png --output-dir output/
+uv run triposr examples/chair.png --output-dir output/
 ```
 
 This will save the reconstructed 3D model to `output/`. You can also specify more than one image path separated by spaces. The default options takes about **6GB VRAM** for a single image input.
 
 If you would like to output a texture instead of vertex colors, use the `--bake-texture` option. You may also use `--texture-resolution` to specify the resolution in pixels of the output texture.
 
-For detailed usage of this script, use `uv run python run.py --help`.
+For detailed usage of this command, use `uv run triposr --help`.
 
 ### Local Gradio App
 
