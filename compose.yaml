@@ -1,0 +1,28 @@
+services:
+  base:
+    image: triposr-base
+    build:
+      context: .
+      dockerfile: docker/base.Dockerfile
+
+  gradio:
+    image: triposr-gradio
+    build:
+      context: .
+      dockerfile: docker/gradio.Dockerfile
+      additional_contexts:
+        triposr-base: service:base
+    ports:
+      - "7860:7860"
+    volumes:
+      - hf_cache:/cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  hf_cache:

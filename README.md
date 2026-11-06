@@ -59,6 +59,49 @@ For detailed usage of this script, use `uv run python run.py --help`.
 uv run python gradio_app.py
 ```
 
+## Docker
+
+Docker images are provided for **Linux with an NVIDIA GPU** only. The host needs an up-to-date NVIDIA driver (CUDA 12.4 compatible) and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html). No local CUDA toolkit is required.
+
+### Available images
+
+| Image            | Dockerfile                 | Description                                                                                                                  |
+| ---------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `triposr-base`   | `docker/base.Dockerfile`   | Shared base: CUDA 12.4 (devel), uv, and the project dependencies (`uv sync --extra cuda`) with `torchmcubes` built for CUDA. |
+| `triposr-gradio` | `docker/gradio.Dockerfile` | Gradio web app built on `triposr-base`. Serves on port 7860.                                                                 |
+
+`triposr-gradio` builds on `triposr-base`, so the base must be built first. Docker Compose does this automatically.
+
+### Build and run with Docker Compose
+
+```sh
+docker compose up --build gradio
+```
+
+Then open http://localhost:7860. To only build the images:
+
+```sh
+docker compose build gradio   # also builds triposr-base if needed
+```
+
+Model weights are downloaded from the Hugging Face hub on first start and stored in the `hf_cache` volume, so later starts reuse them.
+
+### Build without Compose
+
+```sh
+docker build -f docker/base.Dockerfile -t triposr-base .
+docker build -f docker/gradio.Dockerfile -t triposr-gradio .
+docker run --rm --gpus all -p 7860:7860 -v hf_cache:/cache/huggingface triposr-gradio
+```
+
+### Build options
+
+`torchmcubes` is compiled during the build, when no GPU is visible, so the target GPU architectures are set explicitly (default: `7.5;8.0;8.6;8.9;9.0`). If your GPU is not covered, override it:
+
+```sh
+docker build -f docker/base.Dockerfile --build-arg TORCH_CUDA_ARCH_LIST="8.6" -t triposr-base .
+```
+
 ## Troubleshooting
 
 > AttributeError: module 'torchmcubes_module' has no attribute 'mcubes_cuda'
